@@ -2,6 +2,8 @@
 // @name         YouTube Remove playlist parameters
 // @namespace    https://github.com/azucat2
 // @version      1.0.0
+// @updateURL    https://github.com/azucat2/userscripts/raw/main/youtube_remove_playlist_parameter.user.js
+// @downloadURL  https://github.com/azucat2/userscripts/raw/main/youtube_remove_playlist_parameter.user.js
 // @description  Remove the playlist parameters from the YouTube url.
 // @author       azucat2
 // @match        https://www.youtube.com/watch*
