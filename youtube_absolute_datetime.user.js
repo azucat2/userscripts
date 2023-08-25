@@ -36,13 +36,13 @@
     let repDate = date.innerText.replace(dateRegex, startDate.toLocaleString());
 
     if (document.documentElement.lang === "ja-JP") {
-      minRegex = /(^[0-9]+ (分|時間|年)前)(.*)/i;
+      minRegex = /(^[0-9]+ (分|時間|週間|日|か月|年)前)(.*)/i;
       function replacer(match, p1, p2, p3, offset, string) {
         return [p1, p3].join("(" + startDate.toLocaleString() + ")");
       }
       repDate = repDate.replace(minRegex, replacer);
     } else if (document.documentElement.lang === "en") {
-      minRegex = /(^.*([0-9]+ (minute|hour|year)(s|) ago)(.*))/i;
+      minRegex = /(^.*([0-9]+ (minute|hour|day|week|month|year)(s|) ago)(.*))/i;
       function replacer(match, p1, p2, p3, p4, p5, offset, string) {
         return [p1, p5].join("(" + startDate.toLocaleString() + ")");
       }
