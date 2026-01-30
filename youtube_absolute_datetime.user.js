@@ -1,55 +1,75 @@
 // ==UserScript==
-// @name        YouTube Absolute DateTime
-// @namespace   https://github.com/azucat2/
-// @match       https://www.youtube.com/watch*
-// @grant       none
-// @version     1.0.1a
-// @author      azucat2
-// @description Reveal when broadcast started
-// @description:ja その配信がいつ始まったのかを明らかにする
+// @name           YouTube Absolute DateTime
+// @namespace      https://github.com/azucat2/
+// @version        1.2.0
+// @updateURL      https://github.com/azucat2/userscripts/raw/main/youtube_absolute_datetime.user.js
+// @downloadURL    https://github.com/azucat2/userscripts/raw/main/youtube_absolute_datetime.user.js
+// @description    Display the absolute date and time when the stream started
+// @description:ja 配信開始日時を表示します
+// @author         azucat2
+// @match          https://www.youtube.com/watch*
+// @grant          none
+// @license        MIT
 // ==/UserScript==
 
 (() => {
-  'use strict';
+  "use strict";
 
-  const _debug = (...msg) => {
-    console.log('[wdbs] ', ...msg);
-  };
+  let timerId = null;
 
-  const queryString = 'span[itemtype="http://schema.org/BroadcastEvent"] meta[itemprop="startDate"]';
+  const main = () => {
+    const playerResponse =
+      document.querySelector("ytd-watch-flexy")?.playerResponse ||
+      window.ytInitialPlayerResponse;
+    const micro = playerResponse?.microformat?.playerMicroformatRenderer;
+    const startDateText =
+      micro?.liveBroadcastDetails?.startTimestamp ||
+      micro?.publishDate ||
+      micro?.uploadDate;
 
-  const main = async () => {
-    _debug('start');
-    // ページ内遷移した際にヘッダーが変わらないため、自身のページをfetchする
-    const res = await fetch(window.location, { cache: 'no-cache' });
-    const rawBody = await res.text();
-    const domparser = new DOMParser();
-    const body = domparser.parseFromString(rawBody, 'text/html');
-    const startDateText = body.querySelector(queryString)?.getAttribute('content');
     if (!startDateText) return;
 
     const startDate = new Date(startDateText);
-    _debug(startDate);
-    const dateRegex = /^[0-9]{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])/i;
-    let minRegex;
-    const date = document.querySelector('#info > span:nth-child(3)');
-    let repDate = date.innerText.replace(dateRegex, startDate.toLocaleString());
+    const absoluteStr = startDate.toLocaleString();
+    const dateElement = document.querySelector("#info > span:nth-child(3)");
 
-    if (document.documentElement.lang === "ja-JP") {
-      minRegex = /(^[0-9]+ (分|時間|週間|日|か月|年)前)(.*)/i;
-      function replacer(match, p1, p2, p3, offset, string) {
-        return [p1, p3].join("(" + startDate.toLocaleString() + ")");
-      }
-      repDate = repDate.replace(minRegex, replacer);
-    } else if (document.documentElement.lang === "en") {
-      minRegex = /(^.*([0-9]+ (minute|hour|day|week|month|year)(s|) ago)(.*))/i;
-      function replacer(match, p1, p2, p3, p4, p5, offset, string) {
-        return [p1, p5].join("(" + startDate.toLocaleString() + ")");
-      }
-      repDate = repDate.replace(minRegex, replacer);
+    if (!dateElement) return;
+
+    if (dateElement.innerText.includes(absoluteStr)) return;
+
+    let repDate = dateElement.innerText;
+
+    if (document.documentElement.lang.startsWith("ja")) {
+      const minRegex = /(^[0-9]+ (分|時間|週間|日|か月|年)前)(.*)/i;
+      repDate = repDate.replace(minRegex, (match, p1, p2, p3) => {
+        return [p1, p3].join("(" + absoluteStr + ")");
+      });
+    } else if (document.documentElement.lang.startsWith("en")) {
+      const minRegex =
+        /(^.*([0-9]+ (minute|hour|day|week|month|year)(s|) ago)(.*))/i;
+      repDate = repDate.replace(minRegex, (match, p1, p2, p3, p4, p5) => {
+        return [p1, p5].join("(" + absoluteStr + ")");
+      });
     }
-    date.innerText = repDate;
+    dateElement.innerText = repDate;
   };
 
-  document.addEventListener('yt-navigate-finish', main);
+  const scheduleMain = (delay) => {
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+    timerId = setTimeout(main, delay);
+  };
+
+  document.addEventListener("yt-navigate-finish", () => {
+    scheduleMain(1000);
+  });
+
+  if (document.readyState === "complete") {
+    scheduleMain(1000);
+  } else {
+    window.addEventListener("load", () => {
+      scheduleMain(1000);
+    });
+  }
 })();
