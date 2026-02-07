@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         YouTube Bring Japanese to Top
 // @namespace    https://github.com/azucat2/
-// @version      1.0
+// @version      1.0.1
 // @updateURL    https://github.com/azucat2/userscripts/raw/main/youtube_bring_japanese_to_top.user.js
 // @downloadURL  https://github.com/azucat2/userscripts/raw/main/youtube_bring_japanese_to_top.user.js
 // @description  Bring the "Japanese" option to the top of the Translation menu on YouTube.
 // @description:ja YouTubeの翻訳メニューで「日本語」オプションを一番上に移動します。
 // @author       azucat2
 // @match        https://www.youtube.com/watch*
+// @run-at       document-start
 // @grant        none
 // @license      MIT
 // ==/UserScript==
