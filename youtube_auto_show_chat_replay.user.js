@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Auto Show Chat Replay
 // @namespace    https://github.com/azucat2
-// @version      1.0.1
+// @version      1.0.2
 // @updateURL    https://github.com/azucat2/userscripts/raw/main/youtube_auto_show_chat_replay.user.js
 // @downloadURL  https://github.com/azucat2/userscripts/raw/main/youtube_auto_show_chat_replay.user.js
 // @description  Auto show chat replay on YouTube.
@@ -16,15 +16,13 @@
   "use strict";
 
   function tryShowChat() {
-    const chatButton = document.querySelector(
-      ".ytSpecButtonShapeNextSizeXs",
-    );
+    const chatButton = document.querySelector(".ytSpecButtonShapeNextSizeXs");
 
     if (chatButton) {
-      if (chatButton.ariaDisabled === "false") {
+      if (chatButton.ariaDisabled !== "true") {
         chatButton.click();
+        return true;
       }
-      return true;
     }
     return false;
   }
